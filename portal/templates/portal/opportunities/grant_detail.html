@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ grant.title }}{% endblock %}
+{% block content %}
+<div class="detail-hero container py-5" style="padding-top:110px!important">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      {% if grant.cover_image %}<img src="{{ grant.cover_image.url }}" class="detail-cover mb-4" alt="{{ grant.title }}">
+      {% else %}<div class="detail-cover-placeholder mb-4" style="height:220px;background:linear-gradient(135deg,var(--bg-card),rgba(255,209,102,0.1))"><i class="bi bi-award-fill text-warning"></i></div>{% endif %}
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge-nordic">{{ grant.get_grant_type_display }}</span>
+        {% if grant.is_fully_funded %}<span class="badge-warning-soft">Fully Funded</span>{% endif %}
+        {% if grant.country %}<span class="badge-blue-soft">{{ grant.country }}</span>{% endif %}
+        {% for tag in grant.get_tags_list %}<span class="badge-nordic">{{ tag }}</span>{% endfor %}
+      </div>
+      <h1 class="fw-bold mb-1" style="font-size:1.9rem">{{ grant.title }}</h1>
+      <p class="text-muted mb-4">Offered by <strong>{{ grant.partner.name }}</strong></p>
+      <div class="rich-content mb-4">{{ grant.description|safe }}</div>
+      {% if grant.eligibility %}<h4 class="fw-bold mb-3">Eligibility</h4><div class="rich-content">{{ grant.eligibility|safe }}</div>{% endif %}
+    </div>
+    <div class="col-lg-4">
+      <div class="detail-meta-card">
+        <h6 class="fw-bold mb-3">Grant Details</h6>
+        <div class="meta-item"><div class="meta-icon"><i class="bi bi-award-fill text-warning"></i></div><div><div class="meta-label">Grant Type</div><div class="meta-value">{{ grant.get_grant_type_display }}</div></div></div>
+        <div class="meta-item"><div class="meta-icon"><i class="bi bi-cash-coin"></i></div><div><div class="meta-label">Amount</div><div class="meta-value" style="color:var(--accent-yellow)">{{ grant.amount_display }}</div></div></div>
+        {% if grant.country %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-globe"></i></div><div><div class="meta-label">Country</div><div class="meta-value">{{ grant.country }}</div></div></div>{% endif %}
+        {% if grant.deadline %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-calendar-x-fill"></i></div><div><div class="meta-label">Deadline</div><div class="meta-value">{{ grant.deadline|date:"M d, Y" }}</div></div></div>{% endif %}
+        <div class="meta-item"><div class="meta-icon"><i class="bi bi-buildings-fill"></i></div><div><div class="meta-label">Organization</div><div class="meta-value">{{ grant.partner.name }}</div>{% if grant.partner.website %}<a href="{{ grant.partner.website }}" target="_blank" class="text-muted small">Visit website</a>{% endif %}</div></div>
+        {% if grant.apply_url %}<a href="{{ grant.apply_url }}" target="_blank" class="btn btn-nordic apply-btn" style="background:linear-gradient(135deg,#b8860b,#FFD166)"><i class="bi bi-send-fill me-2"></i>Apply Now</a>{% endif %}
+        <a href="{% url 'opportunities:grant_list' %}" class="btn btn-ghost w-100 mt-2 rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back</a>
+      </div>
+    </div>
+  </div>
+  {% if related %}<div class="divider-glow"></div><h4 class="fw-bold mb-4">Similar Grants</h4><div class="row g-4">{% for r in related %}<div class="col-md-4"><a href="{% url 'opportunities:grant_detail' r.slug %}" class="text-decoration-none"><div class="nordic-card p-4"><div class="fw-bold mb-1">{{ r.title }}</div><div class="text-muted small">{{ r.partner.name }}</div></div></a></div>{% endfor %}</div>{% endif %}
+</div>
+{% endblock %}

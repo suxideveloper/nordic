@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}Vacancies{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Custom Hero ── */
+  .vacancies-hero {
+    padding: 130px 0 45px;
+    background: linear-gradient(135deg, rgba(0, 212, 170, 0.12) 0%, rgba(108, 99, 255, 0.08) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 768px) {
+    .vacancies-hero {
+      padding: 110px 0 35px;
+    }
+  }
+
+  .vacancies-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 212, 170, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .vacancies-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: rgba(0, 212, 170, 0.15);
+    border: 1px solid rgba(0, 212, 170, 0.3);
+    color: #00D4AA;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    padding: .25rem .75rem;
+    border-radius: 50px;
+    margin-bottom: .8rem;
+    text-transform: uppercase;
+  }
+
+  .vacancies-hero h1 {
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 0%, #00D4AA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Custom Pagination ── */
+  .custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 40px 0;
+  }
+
+  .custom-pagination .page-item .page-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+
+  .custom-pagination .page-item.active .page-link {
+    background-color: #6C63FF;
+    border-color: #6C63FF;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+  }
+
+  .custom-pagination .page-item .page-link:hover {
+    background-color: rgba(108, 99, 255, 0.2);
+    color: #ffffff;
+    border-color: #6C63FF;
+  }
+
+  .custom-pagination .page-item.disabled .page-link {
+    opacity: 0.25;
+    pointer-events: none;
+    border-color: rgba(255, 255, 255, 0.04);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="vacancies-hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="vacancies-hero-badge">
+          <i class="bi bi-briefcase"></i> Job Opportunities
+        </div>
+        <h1>Find Your Next<br>Career Move</h1>
+        <p class="text-muted mt-3 mb-0" style="font-size:1.05rem; max-width:520px;">
+          Explore full-time, part-time, and remote vacancies from our extensive network of industry leaders.
+        </p>
+      </div>
+      <div class="col-lg-4 d-none d-lg-flex justify-content-end">
+        <div class="hero-animation-container" style="color:#00D4AA;">
+          <div class="hero-glow-blob"></div>
+          <i class="bi bi-briefcase-fill hero-central-icon"></i>
+          <i class="bi bi-buildings-fill hero-floating-icon hf-1"></i>
+          <i class="bi bi-bar-chart-fill hero-floating-icon hf-2"></i>
+          <i class="bi bi-person-workspace hero-floating-icon hf-3"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="container py-5">
+  <div class="filter-bar mb-4" data-aos="fade-up">
+    <form method="GET" class="filter-form">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <div class="search-bar d-flex">
+            <input type="text" name="q" value="{{ search }}" placeholder="Search vacancies...">
+            <button type="submit"><i class="bi bi-search"></i></button>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'opportunities:vacancy_list' %}"
+              class="filter-pill {% if not selected_category and not selected_type %}active{% endif %}">All</a>
+            {% for cat in categories %}<a href="?category={{ cat.slug }}"
+              class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>{% endfor %}
+            {% for val, label in employment_choices %}<a href="?type={{ val }}"
+              class="filter-pill {% if selected_type == val %}active{% endif %}">{{ label }}</a>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="row g-4">
+    {% for v in vacancies %}
+    <div class="col-12" data-aos="fade-up">
+      <a href="{% url 'opportunities:vacancy_detail' v.slug %}" class="text-decoration-none">
+        <div class="nordic-card p-4">
+          <div class="row align-items-center g-3">
+            <div class="col-auto">
+              <div class="rounded-3 d-flex align-items-center justify-content-center"
+                style="width:56px;height:56px;background:var(--bg-glass);border:1px solid var(--border-color)">
+                {% if v.partner.logo %}<img src="{{ v.partner.logo.url }}"
+                  style="max-width:40px;max-height:40px;object-fit:contain">{% else %}<i
+                  class="bi bi-briefcase-fill text-primary fs-4"></i>{% endif %}
+              </div>
+            </div>
+            <div class="col">
+              <h6 class="fw-bold mb-1">{{ v.title }}</h6>
+              <div class="text-muted small">{{ v.partner.name }}{% if v.location %} · <i class="bi bi-geo-alt"></i> {{
+                v.location }}{% endif %}</div>
+            </div>
+            <div class="col-md-auto d-flex flex-wrap gap-2 align-items-center">
+              <span class="badge-nordic">{{ v.get_employment_type_display }}</span>
+              {% if v.is_for_students %}<span class="badge-success-soft">Student Friendly</span>{% endif %}
+              <span class="badge-blue-soft">{{ v.salary_display }}</span>
+              {% if v.deadline %}<span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ v.deadline|date:"M d,
+                Y" }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-briefcase"></i></div>
+        <h5>No vacancies found</h5><a href="{% url 'opportunities:vacancy_list' %}"
+          class="btn btn-outline-nordic mt-2">Clear filters</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if vacancies.has_other_pages %}
+  <nav aria-label="Page navigation" data-aos="fade-up">
+    <ul class="custom-pagination">
+      {% if vacancies.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+          href="?page={{ vacancies.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i
+            class="bi bi-chevron-left"></i></a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+      {% endif %}
+
+      {% for i in vacancies.paginator.page_range %}
+        {% if vacancies.number == i %}
+          <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+        {% elif i > vacancies.number|add:'-3' and i < vacancies.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if vacancies.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ vacancies.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i class="bi bi-chevron-right"></i></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

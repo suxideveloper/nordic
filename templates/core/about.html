@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container position-relative">
+    <div class="page-hero-icon"><i class="bi bi-info-circle-fill text-primary"></i></div>
+    <h1 class="section-title">About <span class="gradient-text">Nordic University</span></h1>
+    <p class="text-muted" style="max-width:600px">Nordic University in Tashkent — a modern international university
+      delivering world-class education with a focus on technology, innovation and global opportunity.</p>
+  </div>
+</div>
+<div class="container py-5">
+  <div class="row g-5 align-items-stretch mb-5">
+    <div class="col-lg-6 d-flex flex-column justify-content-between" data-aos="fade-right">
+      <span class="section-label">Our Mission</span>
+      <h2 class="section-title mb-3">Empowering <span class="gradient-text">Future Leaders</span></h2>
+      <p class="text-muted" style="line-height:1.8">Nordic University Tashkent connects students with real-world
+        opportunities through an extensive network of international partners, companies, and organizations. Our portal
+        aggregates the best events, vacancies, internships, and grants — all in one place for our student community.</p>
+      <div class="row g-3 mt-3">
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ students_count }}</div>
+            <div class="text-muted small">Active Students</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ partners_count }}</div>
+            <div class="text-muted small">Industry Partners</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ events_count }}</div>
+            <div class="text-muted small">Total Events</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ vacancies_count }}</div>
+            <div class="text-muted small">Active Vacancies</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ articles_count }}</div>
+            <div class="text-muted small">Career Articles</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="nordic-card p-3 text-center">
+            <div class="stat-number" style="font-size:1.6rem">{{ grants_count }}</div>
+            <div class="text-muted small">Available Grants</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6" data-aos="fade-left">
+      <div class="nordic-card p-4 text-center h-100 d-flex flex-column">
+        <img src="{% static 'images/image.png' %}" alt="Nordic University Tashkent" class="img-fluid rounded-3 mb-3"
+          style="width: 100%; height: auto;">
+        <div class="mt-auto">
+          <h4 class="mt-3 fw-bold">Nordic International University</h4>
+          <p class="text-muted">Nordic - Excellence in Education</p>
+          <a href="https://nordicuniversity.org/uz" target="_blank" class="btn btn-nordic mt-2"><i
+              class="bi bi-globe me-2"></i>Official Website</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="divider-glow"></div>
+  <div class="text-center mb-5" data-aos="fade-up">
+    <span class="section-label">What We Offer</span>
+    <h2 class="section-title">Everything You Need in <span class="gradient-text">One Place</span></h2>
+  </div>
+  <div class="row g-4 mb-5">
+    {% for icon, color, title, desc, url in offerings %}
+    <div class="col-md-6 col-lg-3" data-aos="fade-up">
+      <div class="nordic-card p-4 h-100 text-center">
+        <div class="mx-auto mb-3 rounded-3 d-flex align-items-center justify-content-center"
+          style="width:60px;height:60px;background:{{ color }}20;border:1px solid {{ color }}40">
+          <i class="{{ icon }}" style="font-size:1.6rem;color:{{ color }}"></i>
+        </div>
+        <h6 class="fw-bold mb-2">{{ title }}</h6>
+        <p class="text-muted small">{{ desc }}</p>
+        <a href="{{ url }}" class="btn btn-outline-nordic btn-sm mt-auto">Explore</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

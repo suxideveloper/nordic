@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{{ vacancy.title }}{% endblock %}
+{% block meta_description %}{{ vacancy.short_description }}{% endblock %}
+{% block content %}
+<div class="detail-hero container py-5" style="padding-top:110px!important">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      {% if vacancy.cover_image %}<img src="{{ vacancy.cover_image.url }}" class="detail-cover mb-4" alt="{{ vacancy.title }}">
+      {% else %}<div class="detail-cover-placeholder mb-4" style="height:220px"><i class="bi bi-briefcase-fill"></i></div>{% endif %}
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge-nordic">{{ vacancy.get_employment_type_display }}</span>
+        {% if vacancy.is_for_students %}<span class="badge-success-soft">Student Friendly</span>{% endif %}
+        {% if vacancy.category %}<span class="badge-blue-soft">{{ vacancy.category.name }}</span>{% endif %}
+        {% for tag in vacancy.get_tags_list %}<span class="badge-nordic">{{ tag }}</span>{% endfor %}
+      </div>
+      <h1 class="fw-bold mb-1" style="font-size:1.9rem">{{ vacancy.title }}</h1>
+      <p class="text-muted mb-4">Posted by <strong>{{ vacancy.partner.name }}</strong></p>
+      <div class="rich-content mb-4">{{ vacancy.description|safe }}</div>
+      {% if vacancy.requirements %}
+      <h4 class="fw-bold mb-3">Requirements</h4>
+      <div class="rich-content">{{ vacancy.requirements|safe }}</div>
+      {% endif %}
+    </div>
+    <div class="col-lg-4">
+      <div class="detail-meta-card">
+        <h6 class="fw-bold mb-3">Job Details</h6>
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-briefcase-fill"></i></div>
+          <div><div class="meta-label">Employment Type</div><div class="meta-value">{{ vacancy.get_employment_type_display }}</div></div>
+        </div>
+        {% if vacancy.location %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+          <div><div class="meta-label">Location</div><div class="meta-value">{{ vacancy.location }}</div></div>
+        </div>
+        {% endif %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-currency-dollar"></i></div>
+          <div><div class="meta-label">Salary</div><div class="meta-value">{{ vacancy.salary_display }}</div></div>
+        </div>
+        {% if vacancy.deadline %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-calendar-x-fill"></i></div>
+          <div><div class="meta-label">Deadline</div><div class="meta-value">{{ vacancy.deadline|date:"M d, Y" }}</div></div>
+        </div>
+        {% endif %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-buildings-fill"></i></div>
+          <div><div class="meta-label">Company</div><div class="meta-value">{{ vacancy.partner.name }}</div>{% if vacancy.partner.website %}<a href="{{ vacancy.partner.website }}" target="_blank" class="text-muted small">Visit website</a>{% endif %}</div>
+        </div>
+        {% if vacancy.apply_url %}
+        <a href="{{ vacancy.apply_url }}" target="_blank" class="btn btn-nordic apply-btn">
+          <i class="bi bi-send-fill me-2"></i>Apply Now
+        </a>
+        {% endif %}
+        <a href="{% url 'opportunities:vacancy_list' %}" class="btn btn-ghost w-100 mt-2 rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back</a>
+      </div>
+    </div>
+  </div>
+  {% if related %}
+  <div class="divider-glow"></div>
+  <h4 class="fw-bold mb-4">Similar Vacancies</h4>
+  <div class="row g-4">{% for r in related %}<div class="col-md-4"><a href="{% url 'opportunities:vacancy_detail' r.slug %}" class="text-decoration-none"><div class="nordic-card p-4"><div class="fw-bold mb-1">{{ r.title }}</div><div class="text-muted small">{{ r.partner.name }}</div></div></a></div>{% endfor %}</div>
+  {% endif %}
+</div>
+{% endblock %}

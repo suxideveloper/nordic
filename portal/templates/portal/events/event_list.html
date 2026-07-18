@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── VAC Banner (Events) ── */
+  .vac-banner {
+    position: relative;
+    overflow: hidden;
+    padding: 130px 0 64px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(108, 99, 255, 0.13), transparent 55%),
+      radial-gradient(circle at 85% 80%, rgba(0, 212, 170, 0.10), transparent 55%),
+      var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+    isolation: isolate;
+  }
+
+  .vac-banner canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .vac-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 820px;
+  }
+
+  .vac-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(108, 99, 255, 0.18), rgba(0, 212, 170, 0.10));
+    border: 1px solid rgba(108, 99, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    animation: vacFloat 4.5s ease-in-out infinite, vacFadeUp .7s ease both;
+  }
+
+  .vac-icon i {
+    font-size: 1.7rem;
+    background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 6px rgba(108, 99, 255, 0.5));
+    animation: vacPulse 2.6s ease-in-out infinite;
+  }
+
+  .vac-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    animation: vacFadeUp .7s ease .08s both;
+  }
+
+  .vac-title .grad {
+    background: linear-gradient(100deg, var(--primary-light), var(--secondary), var(--primary-light));
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: vacShimmer 5s linear infinite;
+  }
+
+  .vac-sub {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin: 0 0 8px;
+    animation: vacFadeUp .7s ease .16s both;
+  }
+
+  @keyframes vacFloat {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  @keyframes vacPulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: .5;
+    }
+  }
+
+  @keyframes vacShimmer {
+    to {
+      background-position: 220% center;
+    }
+  }
+
+  @keyframes vacFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce) {
+
+    .vac-icon,
+    .vac-icon i,
+    .vac-title .grad {
+      animation: none;
+    }
+  }
+
+  /* ── Custom Pagination ── */
+  .custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 40px 0;
+  }
+  .custom-pagination .page-item .page-link {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 1.05rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .custom-pagination .page-item .page-link:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .custom-pagination .page-item.active .page-link {
+    background-color: #6366f1; /* Vibrant Indigo/Purple */
+    border-color: #6366f1;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.45);
+  }
+  .custom-pagination .page-item.disabled .page-link {
+    opacity: 0.25;
+    pointer-events: none;
+    border-color: rgba(255, 255, 255, 0.04);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="vac-banner">
+  <canvas id="vac-net"></canvas>
+  <div class="container">
+    <div class="vac-inner">
+      <div class="vac-icon">
+        <i class="bi bi-calendar-event"></i>
+      </div>
+      <div class="d-flex gap-2 mb-2 flex-wrap">
+        <span class="badge-nordic">All Events</span>
+      </div>
+      <h1 class="vac-title">Upcoming <span class="grad">Events</span></h1>
+      <p class="vac-sub">Conferences, workshops, hackathons and more — from Nordic University and our partners.</p>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
+  <!-- Filter Bar -->
+  <div class="filter-bar mb-4" data-aos="fade-up">
+    <form method="GET" class="filter-form">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="search-bar d-flex">
+            <input type="text" name="q" value="{{ search }}" placeholder="Search events...">
+            <button type="submit"><i class="bi bi-search me-1"></i>Search</button>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'events:list' %}"
+              class="filter-pill {% if not selected_category and not selected_format %}active{% endif %}">All</a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}{% if selected_format %}&format={{ selected_format }}{% endif %}"
+              class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+            <a href="?format=online{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'online' %}active{% endif %}">Online</a>
+            <a href="?format=offline{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'offline' %}active{% endif %}">Offline</a>
+            <a href="?format=hybrid{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'hybrid' %}active{% endif %}">Hybrid</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Upcoming -->
+  {% if upcoming_events %}
+  <h4 class="fw-bold mb-4"><span class="gradient-text">Upcoming</span></h4>
+  <div class="row g-4 mb-5">
+    {% for event in upcoming_events %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'0' }}50">
+      <a href="{% url 'events:detail' event.slug %}" class="text-decoration-none">
+        <div class="nordic-card h-100">
+          {% if event.cover_image %}
+          <img src="{{ event.cover_image.url }}" class="card-img-top" alt="{{ event.title }}">
+          {% else %}
+          <div class="card-img-placeholder"><i class="bi bi-calendar-event"></i></div>
+          {% endif %}
+          <div class="p-4">
+            <div class="d-flex gap-2 mb-2 flex-wrap">
+              <span class="badge-nordic">{{ event.get_format_display }}</span>
+              {% if event.is_free %}<span class="badge-success-soft">Free</span>{% else %}<span
+                class="badge-warning-soft">Paid</span>{% endif %}
+              {% if event.category %}<span class="badge-blue-soft">{{ event.category.name }}</span>{% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ event.title }}</h6>
+            <p class="text-muted small mb-3">{{ event.short_description|truncatechars:90 }}</p>
+            <div class="d-flex flex-column gap-1 text-muted small">
+              <span><i class="bi bi-calendar3 text-primary me-2"></i>{{ event.start_date|date:"D, M d, Y · H:i"
+                }}</span>
+              {% if event.location %}<span><i class="bi bi-geo-alt text-primary me-2"></i>{{ event.location }}</span>{%
+              endif %}
+              {% if event.organizer %}<span><i class="bi bi-buildings text-primary me-2"></i>{{ event.organizer.name
+                }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if upcoming_events.has_other_pages %}
+  <nav aria-label="Page navigation" data-aos="fade-up">
+    <ul class="custom-pagination">
+      {% if upcoming_events.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ upcoming_events.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+        </li>
+      {% endif %}
+
+      {% for i in upcoming_events.paginator.page_range %}
+        {% if upcoming_events.number == i %}
+          <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if upcoming_events.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ upcoming_events.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+  {% endif %}
+
+  <!-- Past events -->
+  {% if past_events %}
+  <h4 class="fw-bold mb-4 text-muted">Past Events</h4>
+  <div class="row g-3">
+    {% for event in past_events %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up">
+      <a href="{% url 'events:detail' event.slug %}" class="text-decoration-none">
+        <div class="nordic-card" style="opacity:0.7">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge-danger-soft">Past</span>
+              <span class="text-muted small">{{ event.start_date|date:"M d, Y" }}</span>
+            </div>
+            <h6 class="fw-bold mb-1">{{ event.title }}</h6>
+            <p class="text-muted small mb-0">{{ event.short_description|truncatechars:80 }}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not upcoming_events and not past_events %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+    <h5>No events found</h5>
+    <p class="text-muted">Try adjusting your filters or check back later.</p>
+    <a href="{% url 'events:list' %}" class="btn btn-outline-nordic mt-2">Clear filters</a>
+  </div>
+  {% endif %}
+</div>
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var canvas = document.getElementById('vac-net');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var section = canvas.parentElement;
+    var w, h, pts = [];
+    var COUNT = 38;
+    var mouse = { x: 0, y: 0, active: false };
+
+    function resize() {
+      w = canvas.width = section.offsetWidth;
+      h = canvas.height = section.offsetHeight;
+    }
+    function init() {
+      pts = Array.from({ length: COUNT }, function () {
+        return {
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.28, vy: (Math.random() - 0.5) * 0.28
+        };
+      });
+    }
+    resize(); init();
+    window.addEventListener('resize', function () { resize(); });
+
+    section.addEventListener('mousemove', function (e) {
+      var r = section.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+      mouse.active = true;
+    });
+    section.addEventListener('mouseleave', function () { mouse.active = false; });
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        if (mouse.active) {
+          var dx = p.x - mouse.x, dy = p.y - mouse.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) { p.x += dx / dist * 0.5; p.y += dy / dist * 0.5; }
+        }
+      }
+      for (var i = 0; i < pts.length; i++) {
+        for (var j = i + 1; j < pts.length; j++) {
+          var a = pts[i], b = pts[j];
+          var d = Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+          if (d < 135) {
+            ctx.strokeStyle = 'rgba(108,99,255,' + (0.18 * (1 - d / 135)) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        ctx.fillStyle = 'rgba(139,133,255,0.6)';
+        ctx.beginPath();
+        ctx.arc(pts[i].x, pts[i].y, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+</script>
+{% endblock %}
+{% endblock %}

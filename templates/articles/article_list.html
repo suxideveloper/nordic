@@ -1,0 +1,560 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Career Articles{% endblock %}
+{% block meta_description %}Career guidance articles for Nordic University students — CV tips, interview prep, LinkedIn,
+and more.{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ─── Articles List Page ───────────────────────────────────────── */
+    .articles-hero {
+        padding: 130px 0 45px;
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.12) 0%, rgba(0, 212, 170, 0.08) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+        .articles-hero {
+            padding: 110px 0 35px;
+        }
+    }
+
+    .articles-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(108, 99, 255, 0.12) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .articles-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        background: rgba(108, 99, 255, 0.15);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        color: #a78bfa;
+        font-size: .74rem;
+        font-weight: 600;
+        letter-spacing: .06em;
+        padding: .25rem .75rem;
+        border-radius: 50px;
+        margin-bottom: .8rem;
+        text-transform: uppercase;
+    }
+
+    .articles-hero h1 {
+        font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.15;
+        background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Filter bar */
+    .articles-filter-bar {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.8rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .filter-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        border-radius: 50px;
+        padding: .35rem 1rem;
+        font-size: .82rem;
+        font-weight: 500;
+        transition: all .22s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        border-color: #6C63FF;
+        color: #fff;
+        background: rgba(108, 99, 255, 0.2);
+    }
+
+    .filter-btn.active {
+        background: rgba(108, 99, 255, 0.3);
+    }
+
+    /* Featured articles */
+    .featured-section {
+        margin-bottom: 2rem;
+    }
+
+    .featured-card {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        height: 250px;
+        cursor: pointer;
+        transition: transform .3s ease, box-shadow .3s ease;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .featured-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    .featured-card .cover {
+        position: absolute;
+        inset: 0;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+        opacity: .45;
+        transition: opacity .3s ease;
+    }
+
+    .featured-card:hover .cover {
+        opacity: .6;
+    }
+
+    .featured-card .overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(10, 10, 20, .95) 0%, transparent 100%);
+        padding: 2rem 1.5rem 1.5rem;
+    }
+
+    .featured-card .cat-badge {
+        display: inline-block;
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        padding: .25rem .7rem;
+        border-radius: 50px;
+        margin-bottom: .6rem;
+        background: rgba(108, 99, 255, .35);
+        color: #c4b5fd;
+    }
+
+    .featured-card h3 {
+        font-size: 0.98rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: #fff;
+        margin: 0;
+    }
+
+    /* Article cards */
+    .article-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 18px;
+        overflow: hidden;
+        transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+    }
+
+    .article-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(108, 99, 255, .4);
+        box-shadow: 0 16px 40px rgba(108, 99, 255, .12);
+    }
+
+    .article-card .card-img {
+        width: 100%;
+        height: 155px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #1a1a2e, #2d2b55);
+    }
+
+    .article-card .card-img-placeholder {
+        width: 100%;
+        height: 155px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1e1b3a, #2d2b55);
+        font-size: 2.2rem;
+        color: rgba(108, 99, 255, .5);
+    }
+
+    .article-card .card-body {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-card .card-meta {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .7rem;
+        flex-wrap: wrap;
+    }
+
+    .difficulty-badge {
+        font-size: .67rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: .22rem .65rem;
+        border-radius: 50px;
+        letter-spacing: .06em;
+    }
+
+    .article-card h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.4;
+        color: #f0f0ff;
+        margin-bottom: .5rem;
+        flex: 1;
+    }
+
+    .article-card .excerpt {
+        font-size: .83rem;
+        color: rgba(255, 255, 255, .55);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: .8rem;
+    }
+
+    .article-card .card-footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .77rem;
+        color: rgba(255, 255, 255, .45);
+        border-top: 1px solid rgba(255, 255, 255, .06);
+        padding-top: .75rem;
+        margin-top: auto;
+    }
+
+    .view-count {
+        display: flex;
+        align-items: center;
+        gap: .3rem;
+    }
+
+    /* Search input */
+    .articles-search {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #fff;
+        padding: .6rem 1rem;
+        width: 100%;
+        font-size: .9rem;
+        outline: none;
+        transition: border-color .2s;
+    }
+
+    .articles-search:focus {
+        border-color: #6C63FF;
+        box-shadow: 0 0 0 3px rgba(108, 99, 255, .15);
+    }
+
+    .articles-search::placeholder {
+        color: rgba(255, 255, 255, .35);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255, 255, 255, .4);
+    }
+
+    .empty-state i {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    /* Pagination Styles */
+    .nordic-pagination .page-item .page-link {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.6);
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .nordic-pagination .page-item.active .page-link {
+        background: #6C63FF;
+        border-color: #6C63FF;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+    }
+
+    .nordic-pagination .page-item .page-link:hover {
+        background: rgba(108, 99, 255, 0.2);
+        border-color: #6C63FF;
+        color: #fff;
+    }
+
+    .nordic-pagination .page-item.disabled .page-link {
+        background: rgba(255, 255, 255, 0.01);
+        border-color: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="articles-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="articles-hero-badge">
+                    <i class="bi bi-journal-richtext"></i> Career Resources
+                </div>
+                <h1>Start Your Career<br>The Right Way</h1>
+                <p class="text-muted mt-3 mb-0" style="font-size:1.05rem; max-width:520px;">
+                    Expertly written guides on CVs, interviews, LinkedIn, internships, and building a successful career
+                    — curated for Nordic University students.
+                </p>
+            </div>
+            <div class="col-lg-4 d-none d-lg-flex justify-content-end">
+                <div class="hero-animation-container" style="color:#6C63FF;">
+                    <div class="hero-glow-blob"></div>
+                    <i class="bi bi-journal-bookmark-fill hero-central-icon"></i>
+                    <i class="bi bi-mortarboard-fill hero-floating-icon hf-1"></i>
+                    <i class="bi bi-bookmark-star-fill hero-floating-icon hf-2"></i>
+                    <i class="bi bi-pencil-fill hero-floating-icon hf-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container pb-5" style="margin-top:1.8rem;">
+
+    <!-- Featured articles -->
+    {% if featured %}
+    <div class="featured-section">
+        <h2 class="fw-700 mb-3"
+            style="font-size:1.2rem; color:rgba(255,255,255,.7); letter-spacing:.04em; text-transform:uppercase;">
+            <i class="bi bi-star-fill text-warning me-2" style="font-size:.9rem;"></i>Featured
+        </h2>
+        <div class="row g-3">
+            {% for art in featured %}
+            <div class="col-md-{% if forloop.first %}6{% else %}3{% endif %}">
+                <a href="{% url 'articles:detail' art.slug %}" class="text-decoration-none">
+                    <div class="featured-card">
+                        {% if art.cover_image %}
+                        <img src="{{ art.cover_image.url }}" class="cover" alt="{{ art.title }}">
+                        {% endif %}
+                        <div class="overlay">
+                            {% if art.category %}
+                            <span class="cat-badge">{{ art.category.name }}</span>
+                            {% endif %}
+                            <h3>{{ art.title }}</h3>
+                            <div class="d-flex align-items-center gap-2 mt-2"
+                                style="font-size:.78rem; color:rgba(255,255,255,.5);">
+                                <i class="bi bi-eye"></i> {{ art.view_count }}
+                                <span>·</span>
+                                <i class="bi bi-clock"></i> {{ art.read_time }} min read
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter Bar -->
+    <div class="articles-filter-bar">
+        <form method="get" id="filterForm">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <!-- Search -->
+                <div class="flex-grow-1" style="min-width:200px;">
+                    <input type="text" name="q" value="{{ search_query }}" class="articles-search"
+                        placeholder="🔍  Search articles..." oninput="this.form.submit()">
+                </div>
+                <!-- Category filters -->
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'articles:list' %}{% if search_query %}?q={{ search_query }}{% endif %}"
+                        class="filter-btn {% if not selected_category %}active{% endif %}">
+                        All
+                    </a>
+                    {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                        class="filter-btn {% if selected_category == cat.slug %}active{% endif %}">
+                        <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                <!-- Difficulty -->
+                <div class="d-flex gap-2 ms-lg-auto flex-wrap mt-2 mt-lg-0">
+                    {% for key, label in article.difficulty_choices|default:"" %}{% empty %}
+                    <a href="?difficulty=beginner{% if selected_category %}&category={{ selected_category }}{% endif %}"
+                        class="filter-btn {% if selected_difficulty == 'beginner' %}active{% endif %}"
+                        style="border-color:#00D4AA33; color:#00D4AA;">
+                        Beginner
+                    </a>
+                    <a href="?difficulty=intermediate{% if selected_category %}&category={{ selected_category }}{% endif %}"
+                        class="filter-btn {% if selected_difficulty == 'intermediate' %}active{% endif %}"
+                        style="border-color:#FFD16633; color:#FFD166;">
+                        Intermediate
+                    </a>
+                    <a href="?difficulty=advanced{% if selected_category %}&category={{ selected_category }}{% endif %}"
+                        class="filter-btn {% if selected_difficulty == 'advanced' %}active{% endif %}"
+                        style="border-color:#FF6B3533; color:#FF6B35;">
+                        Advanced
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results info -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <p class="text-muted small mb-0">
+            <strong class="text-white">{{ total_count }}</strong> article{{ total_count|pluralize }} found
+            {% if search_query %} for "<em>{{ search_query }}</em>"{% endif %}
+        </p>
+        {% if selected_category or search_query or selected_difficulty %}
+        <a href="{% url 'articles:list' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Article grid -->
+    {% if articles %}
+    <div class="row g-4">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+            <a href="{% url 'articles:detail' article.slug %}" class="text-decoration-none h-100 d-block">
+                <div class="article-card">
+                    {% if article.cover_image %}
+                    <img src="{{ article.cover_image.url }}" class="card-img" alt="{{ article.title }}">
+                    {% else %}
+                    <div class="card-img-placeholder">
+                        <i class="{{ article.category.icon|default:'bi bi-journal-text' }}"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="card-meta">
+                            {% if article.category %}
+                            <span class="difficulty-badge"
+                                style="background:{{ article.category.color }}22; color:{{ article.category.color }}; border: 1px solid {{ article.category.color }}44;">
+                                {{ article.category.name }}
+                            </span>
+                            {% endif %}
+                            <span class="difficulty-badge"
+                                style="background:{{ article.get_difficulty_color }}22; color:{{ article.get_difficulty_color }};">
+                                {{ article.get_difficulty_display }}
+                            </span>
+                        </div>
+                        <h5>{{ article.title }}</h5>
+                        {% if article.excerpt %}
+                        <p class="excerpt">{{ article.excerpt }}</p>
+                        {% endif %}
+                        <div class="card-footer-row">
+                            <span>
+                                <i class="bi bi-person-circle me-1"></i>{{ article.get_author_display }}
+                            </span>
+                            <span class="d-flex align-items-center gap-3">
+                                <span class="view-count">
+                                    <i class="bi bi-eye"></i>{{ article.view_count }}
+                                </span>
+                                <span>
+                                    <i class="bi bi-clock me-1"></i>{{ article.read_time }}m
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if articles.has_other_pages %}
+    <nav class="d-flex justify-content-center mt-5" aria-label="Article navigation">
+        <ul class="pagination nordic-pagination gap-1">
+            {% if articles.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?page={{ articles.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}"
+                    aria-label="Previous">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link rounded-circle d-flex align-items-center justify-content-center"><i
+                        class="bi bi-chevron-left"></i></span>
+            </li>
+            {% endif %}
+
+            {% for num in articles.paginator.page_range %}
+            {% if articles.number == num %}
+            <li class="page-item active"><span
+                    class="page-link rounded-circle d-flex align-items-center justify-content-center">{{ num }}</span>
+            </li>
+            {% elif num > articles.number|add:'-3' and num < articles.number|add:'3' %} <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}">
+                    {{ num }}
+                </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if articles.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                        href="?page={{ articles.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}"
+                        aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-circle d-flex align-items-center justify-content-center"><i
+                            class="bi bi-chevron-right"></i></span>
+                </li>
+                {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <h4 class="text-white">No articles found</h4>
+        <p>Try a different search term or remove filters.</p>
+        <a href="{% url 'articles:list' %}" class="btn btn-outline-primary rounded-pill mt-2">View all articles</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

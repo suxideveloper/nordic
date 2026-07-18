@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Custom Hero ── */
+  .events-hero {
+    padding: 130px 0 45px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.12) 0%, rgba(255, 107, 53, 0.08) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 768px) {
+    .events-hero {
+      padding: 110px 0 35px;
+    }
+  }
+
+  .events-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .events-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: rgba(108, 99, 255, 0.15);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    color: #a78bfa;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    padding: .25rem .75rem;
+    border-radius: 50px;
+    margin-bottom: .8rem;
+    text-transform: uppercase;
+  }
+
+  .events-hero h1 {
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Custom Pagination ── */
+  .custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 40px 0;
+  }
+
+  .custom-pagination .page-item .page-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+
+  .custom-pagination .page-item.active .page-link {
+    background-color: #6C63FF;
+    border-color: #6C63FF;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+  }
+
+  .custom-pagination .page-item .page-link:hover {
+    background-color: rgba(108, 99, 255, 0.2);
+    color: #ffffff;
+    border-color: #6C63FF;
+  }
+
+  .custom-pagination .page-item.disabled .page-link {
+    opacity: 0.25;
+    pointer-events: none;
+    border-color: rgba(255, 255, 255, 0.04);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="events-hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="events-hero-badge">
+          <i class="bi bi-calendar-event"></i> University Events
+        </div>
+        <h1>Discover Upcoming<br>Opportunities</h1>
+        <p class="text-muted mt-3 mb-0" style="font-size:1.05rem; max-width:520px;">
+          Conferences, workshops, hackathons and more — from Nordic University and our industry partners to boost your
+          experience.
+        </p>
+      </div>
+      <div class="col-lg-4 d-none d-lg-flex justify-content-end">
+        <div class="hero-animation-container" style="color:#FF6B35;">
+          <div class="hero-glow-blob"></div>
+          <i class="bi bi-calendar-star-fill hero-central-icon"></i>
+          <i class="bi bi-ticket-perforated-fill hero-floating-icon hf-1"></i>
+          <i class="bi bi-mic-fill hero-floating-icon hf-2"></i>
+          <i class="bi bi-geo-alt-fill hero-floating-icon hf-3"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
+  <!-- Filter Bar -->
+  <div class="filter-bar mb-4" data-aos="fade-up">
+    <form method="GET" class="filter-form">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="search-bar d-flex">
+            <input type="text" name="q" value="{{ search }}" placeholder="Search events...">
+            <button type="submit"><i class="bi bi-search me-1"></i>Search</button>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'events:list' %}"
+              class="filter-pill {% if not selected_category and not selected_format %}active{% endif %}">All</a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}{% if selected_format %}&format={{ selected_format }}{% endif %}"
+              class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+            <a href="?format=online{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'online' %}active{% endif %}">Online</a>
+            <a href="?format=offline{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'offline' %}active{% endif %}">Offline</a>
+            <a href="?format=hybrid{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              class="filter-pill {% if selected_format == 'hybrid' %}active{% endif %}">Hybrid</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Upcoming -->
+  {% if upcoming_events %}
+  <h4 class="fw-bold mb-4"><span class="gradient-text">Upcoming</span></h4>
+  <div class="row g-4 mb-5">
+    {% for event in upcoming_events %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'0' }}50">
+      <a href="{% url 'events:detail' event.slug %}" class="text-decoration-none">
+        <div class="nordic-card h-100">
+          {% if event.cover_image %}
+          <img src="{{ event.cover_image.url }}" class="card-img-top" alt="{{ event.title }}">
+          {% else %}
+          <div class="card-img-placeholder"><i class="bi bi-calendar-event"></i></div>
+          {% endif %}
+          <div class="p-4">
+            <div class="d-flex gap-2 mb-2 flex-wrap">
+              <span class="badge-nordic">{{ event.get_format_display }}</span>
+              {% if event.is_free %}<span class="badge-success-soft">Free</span>{% else %}<span
+                class="badge-warning-soft">Paid</span>{% endif %}
+              {% if event.category %}<span class="badge-blue-soft">{{ event.category.name }}</span>{% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ event.title }}</h6>
+            <p class="text-muted small mb-3">{{ event.short_description|truncatechars:90 }}</p>
+            <div class="d-flex flex-column gap-1 text-muted small">
+              <span><i class="bi bi-calendar3 text-primary me-2"></i>{{ event.start_date|date:"D, M d, Y · H:i" }}</span>
+              {% if event.location %}<span><i class="bi bi-geo-alt text-primary me-2"></i>{{ event.location }}</span>{% endif %}
+              {% if event.organizer %}<span><i class="bi bi-buildings text-primary me-2"></i>{{ event.organizer.name }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if upcoming_events.has_other_pages %}
+  <nav aria-label="Page navigation" data-aos="fade-up">
+    <ul class="custom-pagination">
+      {% if upcoming_events.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+          href="?page={{ upcoming_events.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+      </li>
+      {% endif %}
+
+      {% for i in upcoming_events.paginator.page_range %}
+        {% if upcoming_events.number == i %}
+          <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+        {% elif i > upcoming_events.number|add:'-3' and i < upcoming_events.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if upcoming_events.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ upcoming_events.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.format %}&format={{ request.GET.format }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+  {% endif %}
+
+  <!-- Past events -->
+  {% if past_events %}
+  <h4 class="fw-bold mb-4 text-muted">Past Events</h4>
+  <div class="row g-3">
+    {% for event in past_events %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up">
+      <a href="{% url 'events:detail' event.slug %}" class="text-decoration-none">
+        <div class="nordic-card" style="opacity:0.7">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge-danger-soft">Past</span>
+              <span class="text-muted small">{{ event.start_date|date:"M d, Y" }}</span>
+            </div>
+            <h6 class="fw-bold mb-1">{{ event.title }}</h6>
+            <p class="text-muted small mb-0">{{ event.short_description|truncatechars:80 }}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not upcoming_events and not past_events %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+    <h5>No events found</h5>
+    <p class="text-muted">Try adjusting your filters or check back later.</p>
+    <a href="{% url 'events:list' %}" class="btn btn-outline-nordic mt-2">Clear filters</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

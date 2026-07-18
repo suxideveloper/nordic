@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ internship.title }}{% endblock %}
+{% block content %}
+<div class="detail-hero container py-5" style="padding-top:110px!important">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      {% if internship.cover_image %}<img src="{{ internship.cover_image.url }}" class="detail-cover mb-4" alt="{{ internship.title }}">
+      {% else %}<div class="detail-cover-placeholder mb-4" style="height:220px"><i class="bi bi-laptop"></i></div>{% endif %}
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        {% if internship.is_paid %}<span class="badge-success-soft">Paid</span>{% else %}<span class="badge-danger-soft">Unpaid</span>{% endif %}
+        <span class="badge-nordic">{{ internship.get_duration_display }}</span>
+        {% for tag in internship.get_tags_list %}<span class="badge-nordic">{{ tag }}</span>{% endfor %}
+      </div>
+      <h1 class="fw-bold mb-1" style="font-size:1.9rem">{{ internship.title }}</h1>
+      <p class="text-muted mb-4">Offered by <strong>{{ internship.partner.name }}</strong></p>
+      <div class="rich-content">{{ internship.description|safe }}</div>
+    </div>
+    <div class="col-lg-4">
+      <div class="detail-meta-card">
+        <h6 class="fw-bold mb-3">Internship Details</h6>
+        <div class="meta-item"><div class="meta-icon"><i class="bi bi-clock-fill"></i></div><div><div class="meta-label">Duration</div><div class="meta-value">{{ internship.get_duration_display }}</div></div></div>
+        {% if internship.location %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-geo-alt-fill"></i></div><div><div class="meta-label">Location</div><div class="meta-value">{{ internship.location }}</div></div></div>{% endif %}
+        <div class="meta-item"><div class="meta-icon"><i class="bi bi-cash-stack"></i></div><div><div class="meta-label">Compensation</div><div class="meta-value">{{ internship.stipend_display }}</div></div></div>
+        {% if internship.start_date %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-calendar-check-fill"></i></div><div><div class="meta-label">Start Date</div><div class="meta-value">{{ internship.start_date|date:"M d, Y" }}</div></div></div>{% endif %}
+        {% if internship.deadline %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-calendar-x-fill"></i></div><div><div class="meta-label">Apply Before</div><div class="meta-value">{{ internship.deadline|date:"M d, Y" }}</div></div></div>{% endif %}
+        {% if internship.field_of_study %}<div class="meta-item"><div class="meta-icon"><i class="bi bi-book-fill"></i></div><div><div class="meta-label">Field of Study</div><div class="meta-value">{{ internship.field_of_study }}</div></div></div>{% endif %}
+        {% if internship.apply_url %}<a href="{{ internship.apply_url }}" target="_blank" class="btn btn-nordic apply-btn"><i class="bi bi-send-fill me-2"></i>Apply Now</a>{% endif %}
+        <a href="{% url 'opportunities:internship_list' %}" class="btn btn-ghost w-100 mt-2 rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back</a>
+      </div>
+    </div>
+  </div>
+  {% if related %}<div class="divider-glow"></div><h4 class="fw-bold mb-4">Other Internships</h4><div class="row g-4">{% for r in related %}<div class="col-md-4"><a href="{% url 'opportunities:internship_detail' r.slug %}" class="text-decoration-none"><div class="nordic-card p-4"><div class="fw-bold mb-1">{{ r.title }}</div><div class="text-muted small">{{ r.partner.name }}</div></div></a></div>{% endfor %}</div>{% endif %}
+</div>
+{% endblock %}

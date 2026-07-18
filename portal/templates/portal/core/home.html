@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+{% block meta_description %}Nordic University Tashkent — Discover events, vacancies, internships, and grants from top companies and partners worldwide.{% endblock %}
+
+{% block content %}
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════════════════ -->
+<section class="hero-section">
+  <div class="hero-bg-orb orb-1"></div>
+  <div class="hero-bg-orb orb-2"></div>
+  <div class="hero-bg-orb orb-3"></div>
+
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="hero-badge mb-3">
+          <span class="dot"></span>
+          Nordic University Student Portal
+        </div>
+        <h1 class="hero-title">
+          Your Gateway to<br>
+          <span class="gradient-text">Global Opportunities</span>
+        </h1>
+        <p class="hero-subtitle">
+          Discover events, vacancies, internships, and grants curated from top companies and international partners — exclusively for Nordic University students.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{% url 'opportunities:vacancy_list' %}" class="btn btn-nordic">
+            <i class="bi bi-briefcase me-2"></i>Browse Opportunities
+          </a>
+          <a href="{% url 'events:list' %}" class="btn btn-outline-nordic">
+            <i class="bi bi-calendar-event me-2"></i>View Events
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-6" data-aos="fade-left">
+        <!-- Floating opportunity cards preview -->
+        <div class="position-relative" style="height:380px;">
+          <div class="position-absolute" style="top:0;right:0;width:88%;z-index:3">
+            <div class="nordic-card p-4 float" style="animation-delay:0s">
+              <div class="d-flex align-items-center gap-3">
+                <div class="partner-icon rounded-3 bg-primary bg-opacity-10 p-3">
+                  <i class="bi bi-briefcase-fill text-primary fs-4"></i>
+                </div>
+                <div>
+                  <div class="fw-bold">Software Engineer Internship</div>
+                  <div class="text-muted small">EPAM Systems · Tashkent</div>
+                </div>
+                <span class="badge-success-soft ms-auto">Open</span>
+              </div>
+            </div>
+          </div>
+          <div class="position-absolute" style="top:110px;left:0;width:80%;z-index:2">
+            <div class="nordic-card p-4 float" style="animation-delay:0.8s">
+              <div class="d-flex align-items-center gap-3">
+                <div class="partner-icon rounded-3 bg-warning bg-opacity-10 p-3">
+                  <i class="bi bi-award-fill text-warning fs-4"></i>
+                </div>
+                <div>
+                  <div class="fw-bold">Erasmus+ Scholarship 2025</div>
+                  <div class="text-muted small">European Commission · Europe</div>
+                </div>
+                <span class="badge-warning-soft ms-auto">Grant</span>
+              </div>
+            </div>
+          </div>
+          <div class="position-absolute" style="bottom:0;right:0;width:85%;z-index:1">
+            <div class="nordic-card p-4 float" style="animation-delay:1.6s">
+              <div class="d-flex align-items-center gap-3">
+                <div class="partner-icon rounded-3 bg-success bg-opacity-10 p-3">
+                  <i class="bi bi-calendar-event-fill text-success fs-4"></i>
+                </div>
+                <div>
+                  <div class="fw-bold">TechTalks Conference 2025</div>
+                  <div class="text-muted small">IT Park · Tashkent</div>
+                </div>
+                <span class="badge-blue-soft ms-auto">Event</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip mt-5" data-aos="fade-up" data-aos-delay="200">
+      <div class="row g-3 align-items-center">
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ events_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Events</div>
+        </div>
+        <div class="col-auto d-none d-md-block"><div class="stat-divider"></div></div>
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ vacancies_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Vacancies</div>
+        </div>
+        <div class="col-auto d-none d-md-block"><div class="stat-divider"></div></div>
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ internships_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Internships</div>
+        </div>
+        <div class="col-auto d-none d-md-block"><div class="stat-divider"></div></div>
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ grants_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Grants</div>
+        </div>
+        <div class="col-auto d-none d-md-block"><div class="stat-divider"></div></div>
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ articles_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Articles</div>
+        </div>
+        <div class="col-auto d-none d-md-block"><div class="stat-divider"></div></div>
+        <div class="col stat-item">
+          <div class="stat-number" data-target="{{ partners_count }}" data-suffix="+">0+</div>
+          <div class="stat-label">Partners</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ EVENTS ════════════════════════════════════════════════════════════════ -->
+{% if featured_events %}
+<section class="py-6 container" style="padding-top:80px;padding-bottom:80px;">
+  <div class="d-flex justify-content-between align-items-end mb-4" data-aos="fade-up">
+    <div>
+      <span class="section-label"><i class="bi bi-calendar-event me-1"></i>Latest Events</span>
+      <h2 class="section-title mb-0">Upcoming <span class="gradient-text">Events</span></h2>
+    </div>
+    <a href="{% url 'events:list' %}" class="btn btn-outline-nordic d-none d-md-inline-flex">
+      See all events <i class="bi bi-arrow-right ms-2"></i>
+    </a>
+  </div>
+  <div class="row g-4">
+    {% for event in featured_events %}
+    <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+      <a href="{% url 'events:detail' event.slug %}" class="text-decoration-none">
+        <div class="nordic-card">
+          {% if event.cover_image %}
+            <img src="{{ event.cover_image.url }}" class="card-img-top" alt="{{ event.title }}">
+          {% else %}
+            <div class="card-img-placeholder"><i class="bi bi-calendar-event"></i></div>
+          {% endif %}
+          <div class="p-4">
+            <div class="d-flex gap-2 mb-2 flex-wrap">
+              <span class="badge-nordic">{{ event.get_format_display }}</span>
+              {% if event.category %}<span class="badge-blue-soft">{{ event.category.name }}</span>{% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ event.title }}</h6>
+            <p class="text-muted small mb-2">{{ event.short_description|truncatechars:70 }}</p>
+            <div class="d-flex align-items-center gap-2 text-muted small">
+              <i class="bi bi-calendar3 text-primary"></i>
+              {{ event.start_date|date:"M d, Y" }}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="text-center mt-4 d-md-none">
+    <a href="{% url 'events:list' %}" class="btn btn-outline-nordic">See all events</a>
+  </div>
+</section>
+{% endif %}
+
+<div class="divider-glow container"></div>
+
+<!-- ═══ VACANCIES & INTERNSHIPS ══════════════════════════════════════════════ -->
+<section style="padding:80px 0;">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Vacancies -->
+      <div class="col-lg-6" data-aos="fade-right">
+        <span class="section-label"><i class="bi bi-briefcase me-1"></i>From Partners</span>
+        <h2 class="section-title">Open <span class="gradient-text">Vacancies</span></h2>
+        <p class="text-muted mb-4">Job openings from top companies and partners looking for Nordic University graduates.</p>
+        <div class="d-flex flex-column gap-3">
+          {% for v in featured_vacancies %}
+          <a href="{% url 'opportunities:vacancy_detail' v.slug %}" class="text-decoration-none">
+            <div class="nordic-card p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:48px;height:48px;background:var(--bg-glass);border:1px solid var(--border-color)">
+                  <i class="bi bi-briefcase-fill text-primary fs-5"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-bold text-truncate">{{ v.title }}</div>
+                  <div class="text-muted small">{{ v.partner.name }}{% if v.location %} · {{ v.location }}{% endif %}</div>
+                </div>
+                <div class="text-end flex-shrink-0">
+                  <span class="badge-nordic d-block mb-1">{{ v.get_employment_type_display }}</span>
+                  {% if v.deadline %}<div class="text-muted" style="font-size:0.72rem">Due {{ v.deadline|date:"M d" }}</div>{% endif %}
+                </div>
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <div class="empty-state"><div class="empty-state-icon"><i class="bi bi-briefcase"></i></div><h5>No vacancies yet</h5></div>
+          {% endfor %}
+        </div>
+        <a href="{% url 'opportunities:vacancy_list' %}" class="btn btn-outline-nordic mt-4">View all vacancies <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+
+      <!-- Internships -->
+      <div class="col-lg-6" data-aos="fade-left">
+        <span class="section-label"><i class="bi bi-laptop me-1"></i>For Students</span>
+        <h2 class="section-title">Active <span class="gradient-text">Internships</span></h2>
+        <p class="text-muted mb-4">Hands-on experience opportunities from our industry partners and collaborators.</p>
+        <div class="d-flex flex-column gap-3">
+          {% for i in featured_internships %}
+          <a href="{% url 'opportunities:internship_detail' i.slug %}" class="text-decoration-none">
+            <div class="nordic-card p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:48px;height:48px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2)">
+                  <i class="bi bi-laptop text-success fs-5"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-bold text-truncate">{{ i.title }}</div>
+                  <div class="text-muted small">{{ i.partner.name }} · {{ i.get_duration_display }}</div>
+                </div>
+                <div class="text-end flex-shrink-0">
+                  {% if i.is_paid %}
+                    <span class="badge-success-soft">Paid</span>
+                  {% else %}
+                    <span class="badge-danger-soft">Unpaid</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <div class="empty-state"><div class="empty-state-icon"><i class="bi bi-laptop"></i></div><h5>No internships yet</h5></div>
+          {% endfor %}
+        </div>
+        <a href="{% url 'opportunities:internship_list' %}" class="btn btn-outline-nordic mt-4">View all internships <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow container"></div>
+
+<!-- ═══ GRANTS ════════════════════════════════════════════════════════════════ -->
+{% if featured_grants %}
+<section style="padding:80px 0;">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-label"><i class="bi bi-award me-1"></i>Scholarships & Funding</span>
+      <h2 class="section-title">Grants & <span class="gradient-text">Scholarships</span></h2>
+      <p class="section-subtitle mx-auto">International funding opportunities to support your academic and research journey.</p>
+    </div>
+    <div class="row g-4">
+      {% for grant in featured_grants %}
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+        <a href="{% url 'opportunities:grant_detail' grant.slug %}" class="text-decoration-none">
+          <div class="nordic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center"
+                   style="width:52px;height:52px;background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.2)">
+                <i class="bi bi-award-fill text-warning fs-4"></i>
+              </div>
+              {% if grant.is_fully_funded %}<span class="badge-warning-soft">Fully Funded</span>{% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ grant.title }}</h6>
+            <p class="text-muted small mb-3">{{ grant.short_description|truncatechars:90 }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-auto pt-2" style="border-top:1px solid var(--border-color)">
+              <span class="text-muted small"><i class="bi bi-buildings me-1"></i>{{ grant.partner.name }}</span>
+              {% if grant.deadline %}
+              <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ grant.deadline|date:"M d, Y" }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5">
+      <a href="{% url 'opportunities:grant_list' %}" class="btn btn-nordic">
+        <i class="bi bi-award me-2"></i>Browse all grants
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+<div class="divider-glow container"></div>
+
+<!-- ═══ LATEST ARTICLES ═══════════════════════════════════════════════════════ -->
+{% if latest_articles %}
+<section style="padding:80px 0;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4" data-aos="fade-up">
+      <div>
+        <span class="section-label"><i class="bi bi-book me-1"></i>Career Resources</span>
+        <h2 class="section-title mb-0">Latest <span class="gradient-text">Articles & Advice</span></h2>
+      </div>
+      <a href="{% url 'articles:list' %}" class="btn btn-outline-nordic d-none d-md-inline-flex">
+        Read all articles <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for article in latest_articles %}
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+        <a href="{% url 'articles:detail' article.slug %}" class="text-decoration-none">
+          <div class="nordic-card h-100 d-flex flex-column">
+            {% if article.cover_image %}
+              <div class="position-relative overflow-hidden" style="height:200px; border-radius: 12px 12px 0 0;">
+                <img src="{{ article.cover_image.url }}" class="w-100 h-100" style="object-fit:cover;" alt="{{ article.title }}">
+              </div>
+            {% else %}
+              <div class="card-img-placeholder d-flex align-items-center justify-content-center" style="height:200px; border-radius: 12px 12px 0 0; background: rgba(108,99,255,0.05);">
+                <i class="bi bi-book text-primary fs-1"></i>
+              </div>
+            {% endif %}
+            
+            <div class="p-4 d-flex flex-column flex-grow-1" style="min-height:220px;">
+              <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                {% if article.category %}
+                  <span class="badge-blue-soft" style="background: {{ article.category.color }}15; color: {{ article.category.color }}; border: 1px solid {{ article.category.color }}33;">
+                    <i class="{{ article.category.icon }} me-1"></i>{{ article.category.name }}
+                  </span>
+                {% endif %}
+                <span class="badge-nordic text-capitalize">{{ article.difficulty }}</span>
+              </div>
+              <h5 class="fw-bold text-white mb-2" style="font-size:1.1rem; line-height:1.4;">{{ article.title }}</h5>
+              <p class="text-muted small mb-3">{{ article.excerpt|truncatechars:120 }}</p>
+              
+              <div class="d-flex align-items-center justify-content-between mt-auto pt-2" style="border-top: 1px solid var(--border-color);">
+                <div class="d-flex align-items-center gap-2 text-muted small">
+                  <i class="bi bi-clock"></i>
+                  <span>{{ article.read_time }} min read</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 text-muted small">
+                  <i class="bi bi-eye"></i>
+                  <span>{{ article.view_count }} views</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4 d-md-none">
+      <a href="{% url 'articles:list' %}" class="btn btn-outline-nordic">Read all articles</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ PARTNERS ══════════════════════════════════════════════════════════════ -->
+{% if partners %}
+<section style="padding:64px 0;background:var(--bg-card);border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);">
+  <div class="container">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <span class="section-label">Our Partners</span>
+      <h3 class="section-title">Trusted by Leading <span class="gradient-text">Organizations</span></h3>
+    </div>
+    <div class="row g-3 justify-content-center align-items-center">
+      {% for p in partners %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:'1' }}0">
+        <a href="{{ p.website }}" target="_blank" class="partner-card d-flex flex-column align-items-center">
+          {% if p.logo %}
+            <img src="{{ p.logo.url }}" alt="{{ p.name }}">
+          {% else %}
+            <span class="partner-name text-center">{{ p.name }}</span>
+          {% endif %}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'core:partners' %}" class="btn btn-outline-nordic btn-sm">View all partners</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

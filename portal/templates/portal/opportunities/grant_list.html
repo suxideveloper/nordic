@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Grants & Scholarships{% endblock %}
+
+{% block extra_head %}
+<style>
+  .vac-banner{
+    position:relative;
+    overflow:hidden;
+    padding: 130px 0 64px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,209,102,0.10), transparent 55%),
+      radial-gradient(circle at 85% 80%, rgba(108,99,255,0.10), transparent 55%),
+      var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+    isolation:isolate;
+  }
+  .vac-banner canvas{
+    position:absolute; inset:0; z-index:0; opacity:0.5;
+  }
+  .vac-inner{ position:relative; z-index:2; max-width:820px; }
+  .vac-icon{
+    width:60px; height:60px;
+    border-radius:16px;
+    background: linear-gradient(145deg, rgba(255,209,102,0.18), rgba(108,99,255,0.10));
+    border:1px solid rgba(255,209,102,0.25);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+    animation: vacFloat 4.5s ease-in-out infinite, vacFadeUp .7s ease both;
+  }
+  .vac-icon i{
+    font-size:1.7rem;
+    background: linear-gradient(135deg, #FFD166, #6C63FF);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    animation: vacPulse 2.6s ease-in-out infinite;
+  }
+  .vac-title{
+    font-size: clamp(2rem, 4vw, 2.8rem); font-weight:800; line-height:1.15;
+    margin:0 0 12px; color:var(--text-primary); font-family: var(--font-heading);
+    animation: vacFadeUp .7s ease .08s both;
+  }
+  .vac-title .grad{
+    background: linear-gradient(100deg, #FFD166, var(--primary-light), #FFD166);
+    background-size:220% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation: vacShimmer 5s linear infinite;
+  }
+  .vac-sub{ font-size:1rem; color:var(--text-muted); margin:0 0 8px; animation:vacFadeUp .7s ease .16s both; }
+  @keyframes vacFloat{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-7px);} }
+  @keyframes vacPulse{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
+  @keyframes vacShimmer{ to{background-position:220% center;} }
+  @keyframes vacFadeUp{ from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+  @media(prefers-reduced-motion:reduce){ .vac-icon,.vac-icon i,.vac-title .grad{animation:none;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="vac-banner">
+  <canvas id="vac-net"></canvas>
+  <div class="container">
+    <div class="vac-inner">
+      <div class="vac-icon">
+        <i class="bi bi-award-fill"></i>
+      </div>
+      <h1 class="vac-title">Grants & <span class="grad">Scholarships</span></h1>
+      <p class="vac-sub">International funding opportunities to support your academic and research goals.</p>
+    </div>
+  </div>
+</section>
+<div class="container py-5">
+  <div class="filter-bar mb-4" data-aos="fade-up">
+    <form method="GET" class="filter-form">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <div class="search-bar d-flex">
+            <input type="text" name="q" value="{{ search }}" placeholder="Search grants...">
+            <button type="submit"><i class="bi bi-search"></i></button>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'opportunities:grant_list' %}" class="filter-pill {% if not selected_category and not selected_type %}active{% endif %}">All</a>
+            {% for cat in categories %}<a href="?category={{ cat.slug }}" class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>{% endfor %}
+            {% for val, label in grant_types %}<a href="?type={{ val }}" class="filter-pill {% if selected_type == val %}active{% endif %}">{{ label }}</a>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="row g-4">
+    {% for grant in grants %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up">
+      <a href="{% url 'opportunities:grant_detail' grant.slug %}" class="text-decoration-none">
+        <div class="nordic-card h-100">
+          {% if grant.cover_image %}<img src="{{ grant.cover_image.url }}" class="card-img-top" alt="{{ grant.title }}">
+          {% else %}<div class="card-img-placeholder" style="background:linear-gradient(135deg,var(--bg-card-hover),rgba(255,209,102,0.1))"><i class="bi bi-award-fill text-warning"></i></div>{% endif %}
+          <div class="p-4">
+            <div class="d-flex gap-2 mb-2 flex-wrap">
+              {% if grant.is_fully_funded %}<span class="badge-warning-soft">Fully Funded</span>{% endif %}
+              <span class="badge-nordic">{{ grant.get_grant_type_display }}</span>
+              {% if grant.country %}<span class="badge-blue-soft"><i class="bi bi-globe me-1"></i>{{ grant.country }}</span>{% endif %}
+            </div>
+            <h6 class="fw-bold mb-1">{{ grant.title }}</h6>
+            <p class="text-muted small mb-3">{{ grant.short_description|truncatechars:90 }}</p>
+            <div class="d-flex justify-content-between align-items-center text-muted small" style="border-top:1px solid var(--border-color);padding-top:12px">
+              <span><i class="bi bi-buildings me-1"></i>{{ grant.partner.name }}</span>
+              <span class="fw-semibold" style="color:var(--accent-yellow)">{{ grant.amount_display }}</span>
+            </div>
+            {% if grant.deadline %}<div class="text-muted small mt-2"><i class="bi bi-clock me-1"></i>Deadline: {{ grant.deadline|date:"M d, Y" }}</div>{% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="empty-state"><div class="empty-state-icon"><i class="bi bi-award"></i></div><h5>No grants found</h5><a href="{% url 'opportunities:grant_list' %}" class="btn btn-outline-nordic mt-2">Clear filters</a></div></div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if grants.has_other_pages %}
+  <nav class="d-flex justify-content-center mt-5" aria-label="Grant navigation">
+      <ul class="pagination nordic-pagination gap-1">
+          {% if grants.has_previous %}
+          <li class="page-item">
+              <a class="page-link rounded-circle d-flex align-items-center justify-content-center" 
+                 href="?page={{ grants.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if search %}&q={{ search }}{% endif %}" 
+                 aria-label="Previous">
+                  <i class="bi bi-chevron-left"></i>
+              </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+              <span class="page-link rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-chevron-left"></i></span>
+          </li>
+          {% endif %}
+
+          {% for num in grants.paginator.page_range %}
+              {% if grants.number == num %}
+              <li class="page-item active"><span class="page-link rounded-circle d-flex align-items-center justify-content-center">{{ num }}</span></li>
+              {% elif num > grants.number|add:'-3' and num < grants.number|add:'3' %}
+              <li class="page-item">
+                  <a class="page-link rounded-circle d-flex align-items-center justify-content-center" 
+                     href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if search %}&q={{ search }}{% endif %}">
+                      {{ num }}
+                  </a>
+              </li>
+              {% endif %}
+          {% endfor %}
+
+          {% if grants.has_next %}
+          <li class="page-item">
+              <a class="page-link rounded-circle d-flex align-items-center justify-content-center" 
+                 href="?page={{ grants.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if search %}&q={{ search }}{% endif %}" 
+                 aria-label="Next">
+                  <i class="bi bi-chevron-right"></i>
+              </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+              <span class="page-link rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-chevron-right"></i></span>
+          </li>
+          {% endif %}
+      </ul>
+  </nav>
+  {% endif %}
+</div>
+
+{% block extra_scripts %}
+<script>
+(function(){
+  var canvas=document.getElementById('vac-net');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d'),section=canvas.parentElement;
+  var w,h,pts=[],COUNT=38,mouse={x:0,y:0,active:false};
+  function resize(){w=canvas.width=section.offsetWidth;h=canvas.height=section.offsetHeight;}
+  function init(){pts=Array.from({length:COUNT},function(){return{x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28};});}
+  resize();init();
+  window.addEventListener('resize',function(){resize();});
+  section.addEventListener('mousemove',function(e){var r=section.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true;});
+  section.addEventListener('mouseleave',function(){mouse.active=false;});
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;if(mouse.active){var dx=p.x-mouse.x,dy=p.y-mouse.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<130){p.x+=dx/dist*.5;p.y+=dy/dist*.5;}}}
+    for(var i=0;i<pts.length;i++){for(var j=i+1;j<pts.length;j++){var a=pts[i],b=pts[j],d=Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));if(d<135){ctx.strokeStyle='rgba(255,209,102,'+(0.16*(1-d/135))+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}}
+      ctx.fillStyle='rgba(255,209,102,0.55)';ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,1.8,0,Math.PI*2);ctx.fill();}
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+{% endblock %}
+{% endblock %}

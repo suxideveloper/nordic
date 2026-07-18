@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }}{% endblock %}
+{% block meta_description %}{{ article.excerpt|default:article.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ─── Article Detail ──────────────────────────────────────────── */
+.article-detail-hero {
+    padding: 110px 0 0;
+    background: linear-gradient(180deg, rgba(108,99,255,0.08) 0%, transparent 100%);
+}
+.article-breadcrumb {
+    font-size: .8rem;
+    color: rgba(255,255,255,.4);
+    margin-bottom: 1.5rem;
+}
+.article-breadcrumb a { color: #a78bfa; text-decoration: none; }
+.article-breadcrumb a:hover { color: #fff; }
+
+.article-title {
+    font-size: clamp(1.8rem,3.5vw,3rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: #f0f0ff;
+    margin-bottom: 1.2rem;
+}
+.article-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255,255,255,.5);
+    font-size: .85rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.meta-chip {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+.meta-chip i { color: #a78bfa; }
+.view-counter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(108,99,255,.15);
+    border: 1px solid rgba(108,99,255,.25);
+    color: #c4b5fd;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .3rem .8rem;
+    border-radius: 50px;
+}
+
+/* Cover image */
+.article-cover {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(255,255,255,.07);
+}
+
+/* Article body content */
+.article-body {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: rgba(255,255,255,.82);
+}
+.article-body h2, .article-body h3, .article-body h4 {
+    color: #f0f0ff;
+    margin-top: 2rem;
+    margin-bottom: .75rem;
+    font-weight: 700;
+}
+.article-body p { margin-bottom: 1.25rem; }
+.article-body ul, .article-body ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+.article-body li { margin-bottom: .4rem; }
+.article-body blockquote {
+    border-left: 3px solid #6C63FF;
+    padding: 1rem 1.5rem;
+    background: rgba(108,99,255,.08);
+    border-radius: 0 12px 12px 0;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: rgba(255,255,255,.7);
+}
+.article-body a { color: #a78bfa; text-decoration: underline; }
+.article-body img { max-width: 100%; border-radius: 12px; margin: 1rem 0; }
+.article-body pre, .article-body code {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 8px;
+    padding: .2em .45em;
+    font-family: 'Fira Code', monospace;
+    font-size: .9em;
+}
+.article-body pre { padding: 1rem 1.25rem; overflow-x: auto; }
+.article-body pre code { border: none; background: none; padding: 0; }
+
+/* Tags */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(108,99,255,.12);
+    border: 1px solid rgba(108,99,255,.25);
+    color: #c4b5fd;
+    font-size: .77rem;
+    font-weight: 500;
+    padding: .28rem .75rem;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all .2s;
+}
+.tag-chip:hover {
+    background: rgba(108,99,255,.25);
+    color: #fff;
+}
+
+/* Sidebar */
+.article-sidebar {
+    position: sticky;
+    top: 90px;
+}
+.sidebar-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.sidebar-card h6 {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,.4);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+/* Related articles */
+.related-article-item {
+    display: flex;
+    gap: .75rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    text-decoration: none;
+    transition: all .2s;
+}
+.related-article-item:last-child { border-bottom: none; }
+.related-article-item:hover { transform: translateX(4px); }
+.related-article-item .thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #1e1b3a, #2d2b55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.related-article-item .info h6 {
+    font-size: .84rem;
+    font-weight: 600;
+    color: #f0f0ff;
+    line-height: 1.35;
+    margin-bottom: .25rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.related-article-item .info span {
+    font-size: .75rem;
+    color: rgba(255,255,255,.4);
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+/* Progress bar (reading progress) */
+#readingProgress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #6C63FF, #00D4AA);
+    z-index: 9999;
+    transition: width .1s linear;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="readingProgress"></div>
+
+<div class="article-detail-hero">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="article-breadcrumb">
+            <a href="{% url 'articles:list' %}"><i class="bi bi-journal-richtext me-1"></i>Articles</a>
+            {% if article.category %}
+            <span class="mx-1">›</span>
+            <a href="{% url 'articles:list' %}?category={{ article.category.slug }}">{{ article.category.name }}</a>
+            {% endif %}
+            <span class="mx-1">›</span>
+            <span class="text-white">{{ article.title|truncatechars:60 }}</span>
+        </div>
+
+        <div class="row g-5">
+            <!-- Main content -->
+            <div class="col-lg-8">
+                <!-- Category & difficulty badges -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% if article.category %}
+                    <span class="difficulty-badge"
+                          style="background:{{ article.category.color }}22; color:{{ article.category.color }}; border:1px solid {{ article.category.color }}44; font-size:.75rem; padding:.3rem .8rem; border-radius:50px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;">
+                        <i class="{{ article.category.icon }} me-1"></i>{{ article.category.name }}
+                    </span>
+                    {% endif %}
+                    <span style="background:{{ article.get_difficulty_color }}22; color:{{ article.get_difficulty_color }}; border:1px solid {{ article.get_difficulty_color }}44; font-size:.75rem; padding:.3rem .8rem; border-radius:50px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;">
+                        {{ article.get_difficulty_display }}
+                    </span>
+                    {% if article.is_featured %}
+                    <span style="background:rgba(255,209,102,.15); color:#FFD166; border:1px solid rgba(255,209,102,.3); font-size:.75rem; padding:.3rem .8rem; border-radius:50px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;">
+                        <i class="bi bi-star-fill me-1"></i>Featured
+                    </span>
+                    {% endif %}
+                </div>
+
+                <h1 class="article-title">{{ article.title }}</h1>
+
+                <!-- Meta row -->
+                <div class="article-meta-row">
+                    <span class="meta-chip">
+                        <i class="bi bi-person-circle"></i>
+                        {{ article.get_author_display }}
+                    </span>
+                    {% if article.published_at %}
+                    <span class="meta-chip">
+                        <i class="bi bi-calendar3"></i>
+                        {{ article.published_at|date:"d M, Y" }}
+                    </span>
+                    {% endif %}
+                    <span class="meta-chip">
+                        <i class="bi bi-clock"></i>
+                        {{ article.read_time }} min read
+                    </span>
+                    <span class="view-counter-badge">
+                        <i class="bi bi-eye-fill"></i>
+                        {{ article.view_count }} view{{ article.view_count|pluralize }}
+                    </span>
+                </div>
+
+                <!-- Cover image -->
+                {% if article.cover_image %}
+                <img src="{{ article.cover_image.url }}" class="article-cover" alt="{{ article.title }}">
+                {% endif %}
+
+                <!-- Article content -->
+                <div class="article-body">
+                    {{ article.content|safe }}
+                </div>
+
+                <!-- Tags -->
+                {% if tag_list %}
+                <div class="mt-4 pt-4" style="border-top: 1px solid rgba(255,255,255,.07);">
+                    <span class="text-muted small me-2">Tags:</span>
+                    {% for tag in tag_list %}
+                    <a href="{% url 'articles:list' %}?q={{ tag }}" class="tag-chip me-1 mb-1">
+                        <i class="bi bi-hash" style="font-size:.7rem;"></i>{{ tag }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Back link -->
+                <div class="mt-5">
+                    <a href="{% url 'articles:list' %}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-2"></i>All Articles
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4 d-none d-lg-block">
+                <aside class="article-sidebar">
+                    <!-- Quick stats -->
+                    <div class="sidebar-card">
+                        <h6>Article Info</h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color:rgba(255,255,255,.5); font-size:.85rem;"><i class="bi bi-eye me-2 text-primary"></i>Views</span>
+                                <span class="fw-600 text-white">{{ article.view_count }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color:rgba(255,255,255,.5); font-size:.85rem;"><i class="bi bi-clock me-2 text-success"></i>Read time</span>
+                                <span class="fw-600 text-white">{{ article.read_time }} min</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color:rgba(255,255,255,.5); font-size:.85rem;"><i class="bi bi-bar-chart me-2 text-warning"></i>Level</span>
+                                <span class="fw-600" style="color:{{ article.get_difficulty_color }};">{{ article.get_difficulty_display }}</span>
+                            </div>
+                            {% if article.published_at %}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color:rgba(255,255,255,.5); font-size:.85rem;"><i class="bi bi-calendar3 me-2" style="color:#FF6B35;"></i>Published</span>
+                                <span class="fw-600 text-white">{{ article.published_at|date:"d M Y" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Related articles -->
+                    {% if related %}
+                    <div class="sidebar-card">
+                        <h6>Related Articles</h6>
+                        {% for rel in related %}
+                        <a href="{% url 'articles:detail' rel.slug %}" class="related-article-item">
+                            {% if rel.cover_image %}
+                            <img src="{{ rel.cover_image.url }}" class="thumb" alt="{{ rel.title }}">
+                            {% else %}
+                            <div class="thumb">
+                                <i class="{{ rel.category.icon|default:'bi bi-journal-text' }}" style="color:rgba(108,99,255,.6);"></i>
+                            </div>
+                            {% endif %}
+                            <div class="info">
+                                <h6>{{ rel.title|truncatechars:60 }}</h6>
+                                <span><i class="bi bi-eye"></i>{{ rel.view_count }} views</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Browse more -->
+                    <div class="sidebar-card" style="background:linear-gradient(135deg,rgba(108,99,255,.12),rgba(0,212,170,.08)); border-color:rgba(108,99,255,.25);">
+                        <h6>Browse All Articles</h6>
+                        <p style="font-size:.83rem; color:rgba(255,255,255,.5);">Discover more career tips, guides, and industry insights.</p>
+                        <a href="{% url 'articles:list' %}" class="btn btn-sm btn-outline-primary rounded-pill w-100">
+                            <i class="bi bi-journal-richtext me-1"></i>View All
+                        </a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="padding-bottom: 5rem;"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Reading progress bar
+window.addEventListener('scroll', function() {
+    const article = document.querySelector('.article-body');
+    if (!article) return;
+    const articleTop = article.offsetTop;
+    const articleHeight = article.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const scrolled = window.scrollY;
+    const progress = Math.min(100, Math.max(0,
+        ((scrolled - articleTop + windowHeight * 0.5) / articleHeight) * 100
+    ));
+    document.getElementById('readingProgress').style.width = progress + '%';
+});
+</script>
+{% endblock %}

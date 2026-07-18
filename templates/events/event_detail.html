@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block meta_description %}{{ event.short_description }}{% endblock %}
+{% block content %}
+<div class="detail-hero container py-5" style="padding-top:110px!important">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      {% if event.cover_image %}
+        <img src="{{ event.cover_image.url }}" class="detail-cover mb-4" alt="{{ event.title }}">
+      {% else %}
+        <div class="detail-cover-placeholder mb-4"><i class="bi bi-calendar-event"></i></div>
+      {% endif %}
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge-nordic">{{ event.get_format_display }}</span>
+        {% if event.category %}<span class="badge-blue-soft">{{ event.category.name }}</span>{% endif %}
+        {% if event.is_free %}<span class="badge-success-soft">Free Entry</span>{% else %}<span class="badge-warning-soft">{{ event.price }} USD</span>{% endif %}
+        {% for tag in event.get_tags_list %}<span class="badge-nordic">{{ tag }}</span>{% endfor %}
+      </div>
+
+      <h1 class="fw-bold mb-2" style="font-size:2rem">{{ event.title }}</h1>
+      {% if event.organizer %}
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <span class="text-muted">Organized by</span>
+        <span class="fw-semibold text-primary">{{ event.organizer.name }}</span>
+        {% if event.organizer.website %}<a href="{{ event.organizer.website }}" target="_blank" class="text-muted small"><i class="bi bi-box-arrow-up-right"></i></a>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="rich-content">{{ event.description|safe }}</div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="detail-meta-card">
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-calendar3"></i></div>
+          <div>
+            <div class="meta-label">Date & Time</div>
+            <div class="meta-value">{{ event.start_date|date:"D, M d, Y" }}</div>
+            <div class="text-muted small">{{ event.start_date|date:"H:i" }}{% if event.end_date %} – {{ event.end_date|date:"H:i" }}{% endif %}</div>
+          </div>
+        </div>
+        {% if event.location %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+          <div>
+            <div class="meta-label">Location</div>
+            <div class="meta-value">{{ event.location }}</div>
+          </div>
+        </div>
+        {% endif %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-display"></i></div>
+          <div>
+            <div class="meta-label">Format</div>
+            <div class="meta-value">{{ event.get_format_display }}</div>
+          </div>
+        </div>
+        {% if event.seats_available %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="meta-label">Seats Available</div>
+            <div class="meta-value">{{ event.seats_available }}</div>
+          </div>
+        </div>
+        {% endif %}
+        <div class="meta-item">
+          <div class="meta-icon"><i class="bi bi-eye-fill"></i></div>
+          <div>
+            <div class="meta-label">Views</div>
+            <div class="meta-value">{{ event.views_count }}</div>
+          </div>
+        </div>
+
+        {% if event.registration_url %}
+        <a href="{{ event.registration_url }}" target="_blank" class="btn btn-nordic apply-btn mt-3">
+          <i class="bi bi-calendar-check me-2"></i>Register Now
+        </a>
+        {% endif %}
+        <a href="{% url 'events:list' %}" class="btn btn-ghost w-100 mt-2 rounded-pill">
+          <i class="bi bi-arrow-left me-1"></i>Back to Events
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% if related_events %}
+  <div class="divider-glow"></div>
+  <h4 class="fw-bold mb-4">Related Events</h4>
+  <div class="row g-4">
+    {% for e in related_events %}
+    <div class="col-md-4">
+      <a href="{% url 'events:detail' e.slug %}" class="text-decoration-none">
+        <div class="nordic-card p-4">
+          <div class="fw-bold mb-1">{{ e.title }}</div>
+          <div class="text-muted small">{{ e.start_date|date:"M d, Y" }}</div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
